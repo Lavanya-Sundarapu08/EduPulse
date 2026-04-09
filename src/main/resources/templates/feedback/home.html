@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EduPulse · Faculty Feedback</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+</head>
+<body class="home-body">
+
+<!-- ── Navbar ──────────────────────────────────────────────────── -->
+<nav class="navbar">
+  <div class="nav-logo">
+    <div class="logo-icon">Ep</div>
+    <div class="logo-text">
+      <span class="logo-brand">EduPulse</span>
+      <span class="logo-sub">FACULTY FEEDBACK</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <span class="theme-toggle" id="themeToggle">🌙</span>
+    <a th:href="@{/login}" class="btn-staff-login">
+      <span>👤</span> Staff Login
+    </a>
+  </div>
+</nav>
+
+<!-- ── Main card ───────────────────────────────────────────────── -->
+<div class="home-container">
+  <div class="home-card">
+
+    <!-- Left panel -->
+    <div class="home-left">
+      <p class="academic-year">ACADEMIC YEAR 2024-25</p>
+      <h1 class="home-title">
+        Faculty<br>
+        <span class="title-italic">Feedback</span><br>
+        System
+      </h1>
+      <p class="home-desc">
+        Help us improve teaching quality by sharing honest,
+        structured feedback on your instructors. Your voice
+        shapes the future of your department.
+      </p>
+      <div class="home-badges">
+        <span class="badge">🔒 Anonymous</span>
+        <span class="badge">⚡ 5 min survey</span>
+        <span class="badge">📊 Impacts curriculum</span>
+      </div>
+    </div>
+
+    <!-- Right panel: form -->
+    <div class="home-right">
+      <h2 class="form-title">Student Details</h2>
+      <p class="form-subtitle">Select your academic details to begin</p>
+
+      <div th:if="${error}" class="alert-error" th:text="${error}"></div>
+      <div id="liveWarn" class="alert-error" style="display:none"></div>
+
+      <form th:action="@{/feedback/begin}" method="post" id="beginForm">
+
+        <!-- Semester -->
+        <div class="field-group">
+          <label class="field-label">SEMESTER</label>
+          <div class="custom-select-wrapper">
+            <select name="semester" id="semesterSelect" class="custom-select" required>
+              <option value="" disabled selected>Select Semester</option>
+              <option th:each="s : ${semesters}" th:value="${s}" th:text="${s}" th:selected="${s == selectedSemester}"></option>
+            </select>
+            <span class="select-arrow">⌄</span>
+          </div>
+        </div>
+
+        <!-- Branch -->
+        <div class="field-group">
+          <label class="field-label">BRANCH</label>
+          <div class="custom-select-wrapper">
+            <select name="branch" id="branchSelect" class="custom-select" required>
+              <option value="" disabled selected>Select Branch</option>
+              <option th:each="b : ${branches}" th:value="${b}" th:text="${b}" th:selected="${b == selectedBranch}"></option>
+            </select>
+            <span class="select-arrow">⌄</span>
+          </div>
+        </div>
+
+        <!-- Section -->
+        <div class="field-group">
+          <label class="field-label">SECTION</label>
+          <div class="custom-select-wrapper">
+            <select name="section" id="sectionSelect" class="custom-select" required>
+              <option value="" disabled selected>Select Section</option>
+              <option th:each="sec : ${sections}" th:value="${sec}" th:text="${sec}" th:selected="${sec == selectedSection}"></option>
+            </select>
+            <span class="select-arrow">⌄</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-begin">Begin Feedback →</button>
+
+        <p class="one-submission-note">⚠ One submission per semester / branch / section</p>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+<script>
+  // Live faculty availability check
+  const semSel  = document.getElementById('semesterSelect');
+  const braSel  = document.getElementById('branchSelect');
+  const secSel  = document.getElementById('sectionSelect');
+  const warnBox = document.getElementById('liveWarn');
+
+  async function checkFaculty() {
+    const sem = semSel.value;
+    const bra = braSel.value;
+    if (!sem || !bra) { warnBox.style.display='none'; return; }
+    try {
+      const res = await fetch(`/api/faculty?semester=${encodeURIComponent(sem)}&branch=${encodeURIComponent(bra)}`);
+      const data = await res.json();
+      if (data.length === 0) {
+        warnBox.textContent = '⚠ No faculty configured for ' + sem + ' / ' + bra + '. Please choose a different combination.';
+        warnBox.style.display = 'block';
+      } else {
+        warnBox.style.display = 'none';
+      }
+    } catch(e) {}
+  }
+
+  semSel.addEventListener('change', checkFaculty);
+  braSel.addEventListener('change', checkFaculty);
+</script>
+
+</body>
+</html>

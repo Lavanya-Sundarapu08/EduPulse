@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EduPulse · Faculty Feedback</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+</head>
+<body class="feedback-body">
+
+<!-- ── Navbar ──────────────────────────────────────────────────── -->
+<nav class="navbar navbar-light">
+  <div class="nav-logo">
+    <div class="logo-icon">Ep</div>
+    <div class="logo-text">
+      <span class="logo-brand">EduPulse</span>
+      <span class="logo-sub">FACULTY FEEDBACK</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <span class="theme-toggle" id="themeToggle">🌙</span>
+    <a th:href="@{/login}" class="btn-staff-login-outline">👤 Staff Login</a>
+  </div>
+</nav>
+
+<!-- ── Progress breadcrumb ─────────────────────────────────────── -->
+<div class="feedback-wrapper">
+  <div class="breadcrumb-bar">
+    <a th:href="@{/}" class="back-link">← Back</a>
+    <span class="breadcrumb-sep">|</span>
+    <span class="breadcrumb-path">
+      Feedback /
+      <span th:text="${faculty.facultyFullName}">Faculty</span>
+    </span>
+  </div>
+
+  <!-- ── Step indicator ──────────────────────────────────────── -->
+  <div class="step-indicator">
+    <th:block th:each="fc, iter : ${facultyList}">
+      <div th:class="${iter.index < index} ? 'step step-done' :
+                     (${iter.index == index} ? 'step step-active' : 'step step-pending')">
+        <div class="step-circle">
+          <span th:if="${iter.index < index}">✓</span>
+          <span th:if="${iter.index == index}" th:text="${iter.index + 1}"></span>
+          <span th:if="${iter.index > index}" th:text="${iter.index + 1}"></span>
+        </div>
+        <span class="step-label" th:text="${fc.facultyName}"></span>
+      </div>
+      <div class="step-line" th:if="${!iter.last}"></div>
+    </th:block>
+    <!-- Review step -->
+    <div class="step-line"></div>
+    <div class="step step-pending step-review">
+      <div class="step-circle">⚐</div>
+      <span class="step-label">Review</span>
+    </div>
+  </div>
+
+  <!-- ── Faculty card ────────────────────────────────────────── -->
+  <div class="faculty-card">
+    <div class="faculty-header">
+      <div class="faculty-avatar" th:text="${faculty.facultyName.substring(0,2).toUpperCase()}">AK</div>
+      <div class="faculty-info">
+        <h3 th:text="${faculty.facultyFullName}">Dr. A. Kumar</h3>
+        <div class="faculty-tags">
+          <span class="tag tag-subject" th:text="${faculty.subject}">Operating Systems</span>
+          <span class="tag tag-type"    th:text="${faculty.subjectType}">THEORY</span>
+          <span class="tag tag-branch"  th:text="${branch}">CSE</span>
+        </div>
+      </div>
+      <div class="faculty-count">
+        <span class="count-num" th:text="${index + 1}">1</span>
+        <span class="count-denom" th:text="'/' + ${total}">/ 4</span>
+        <span class="count-label">FACULTY</span>
+      </div>
+    </div>
+
+    <!-- ── Criteria table ───────────────────────────────────── -->
+    <form th:action="@{/feedback/faculty/{i}/save(i=${index})}" method="post" id="facultyForm">
+
+      <div class="criteria-section">
+        <div class="criteria-header">
+          <span class="criteria-title">EVALUATION CRITERIA</span>
+          <span class="criteria-scale">Very Good · Good · Average · Below Average</span>
+        </div>
+
+        <!-- Teaching Effectiveness -->
+        <div class="criteria-row">
+          <div class="criteria-num">1</div>
+          <div class="criteria-info">
+            <span class="criteria-name">Teaching Effectiveness</span>
+            <span class="criteria-desc">Clarity, examples, pace</span>
+          </div>
+          <div class="rating-buttons">
+            <label th:each="opt : ${ {'4','3','2','1'} }">
+              <input type="radio" name="teachingEffectiveness" th:value="${opt}" class="rating-radio"
+                     th:checked="${feedback.teachingEffectiveness != null and feedback.teachingEffectiveness.toString() == opt}" required/>
+              <span th:class="'rating-btn ' + (${opt == '4'} ? 'btn-vg' : (${opt == '3'} ? 'btn-g' : (${opt == '2'} ? 'btn-avg' : 'btn-ba')))"
+                    th:text="${opt == '4'} ? 'Very Good' : (${opt == '3'} ? 'Good' : (${opt == '2'} ? 'Average' : 'Below Average'))">
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Subject Knowledge -->
+        <div class="criteria-row">
+          <div class="criteria-num">2</div>
+          <div class="criteria-info">
+            <span class="criteria-name">Subject Knowledge</span>
+            <span class="criteria-desc">Depth &amp; accuracy of content</span>
+          </div>
+          <div class="rating-buttons">
+            <label th:each="opt : ${ {'4','3','2','1'} }">
+              <input type="radio" name="subjectKnowledge" th:value="${opt}" class="rating-radio"
+                     th:checked="${feedback.subjectKnowledge != null and feedback.subjectKnowledge.toString() == opt}" required/>
+              <span th:class="'rating-btn ' + (${opt == '4'} ? 'btn-vg' : (${opt == '3'} ? 'btn-g' : (${opt == '2'} ? 'btn-avg' : 'btn-ba')))"
+                    th:text="${opt == '4'} ? 'Very Good' : (${opt == '3'} ? 'Good' : (${opt == '2'} ? 'Average' : 'Below Average'))">
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Communication Skills -->
+        <div class="criteria-row">
+          <div class="criteria-num">3</div>
+          <div class="criteria-info">
+            <span class="criteria-name">Communication Skills</span>
+            <span class="criteria-desc">Expression, interaction</span>
+          </div>
+          <div class="rating-buttons">
+            <label th:each="opt : ${ {'4','3','2','1'} }">
+              <input type="radio" name="communicationSkills" th:value="${opt}" class="rating-radio"
+                     th:checked="${feedback.communicationSkills != null and feedback.communicationSkills.toString() == opt}" required/>
+              <span th:class="'rating-btn ' + (${opt == '4'} ? 'btn-vg' : (${opt == '3'} ? 'btn-g' : (${opt == '2'} ? 'btn-avg' : 'btn-ba')))"
+                    th:text="${opt == '4'} ? 'Very Good' : (${opt == '3'} ? 'Good' : (${opt == '2'} ? 'Average' : 'Below Average'))">
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Punctuality -->
+        <div class="criteria-row">
+          <div class="criteria-num">4</div>
+          <div class="criteria-info">
+            <span class="criteria-name">Punctuality &amp; Regularity</span>
+            <span class="criteria-desc">Timeliness, class coverage</span>
+          </div>
+          <div class="rating-buttons">
+            <label th:each="opt : ${ {'4','3','2','1'} }">
+              <input type="radio" name="punctuality" th:value="${opt}" class="rating-radio"
+                     th:checked="${feedback.punctuality != null and feedback.punctuality.toString() == opt}" required/>
+              <span th:class="'rating-btn ' + (${opt == '4'} ? 'btn-vg' : (${opt == '3'} ? 'btn-g' : (${opt == '2'} ? 'btn-avg' : 'btn-ba')))"
+                    th:text="${opt == '4'} ? 'Very Good' : (${opt == '3'} ? 'Good' : (${opt == '2'} ? 'Average' : 'Below Average'))">
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Student Support -->
+        <div class="criteria-row">
+          <div class="criteria-num">5</div>
+          <div class="criteria-info">
+            <span class="criteria-name">Student Support</span>
+            <span class="criteria-desc">Availability, doubt clearing</span>
+          </div>
+          <div class="rating-buttons">
+            <label th:each="opt : ${ {'4','3','2','1'} }">
+              <input type="radio" name="studentSupport" th:value="${opt}" class="rating-radio"
+                     th:checked="${feedback.studentSupport != null and feedback.studentSupport.toString() == opt}" required/>
+              <span th:class="'rating-btn ' + (${opt == '4'} ? 'btn-vg' : (${opt == '3'} ? 'btn-g' : (${opt == '2'} ? 'btn-avg' : 'btn-ba')))"
+                    th:text="${opt == '4'} ? 'Very Good' : (${opt == '3'} ? 'Good' : (${opt == '2'} ? 'Average' : 'Below Average'))">
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal Comment -->
+      <div class="comment-section">
+        <div class="section-label-bar">PERSONAL COMMENT</div>
+        <textarea name="personalComment" class="comment-box" placeholder="Share any specific feedback about this faculty member (optional)..."
+                  th:text="${feedback.personalComment}"></textarea>
+      </div>
+
+      <!-- Navigation buttons -->
+      <div class="form-nav">
+        <div>
+          <button type="submit" name="action" value="cancel"
+                  class="btn-cancel"
+                  onclick="return confirm('Cancel and go to home?') ? (window.location='/', false) : false">
+            ✕ Cancel
+          </button>
+        </div>
+        <div class="nav-right-buttons">
+          <span class="progress-label" th:text="${index + 1} + ' of ' + ${total}">1 of 4</span>
+          <button th:if="${index > 0}" type="submit" name="action" value="prev" class="btn-prev">
+            ← Previous Teacher
+          </button>
+          <button type="submit" name="action" value="next" class="btn-next"
+                  th:text="${index + 1 == total} ? 'Review →' : 'Next Teacher →'">
+            Next Teacher →
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+<script>
+// Highlight selected rating button
+document.querySelectorAll('.rating-radio').forEach(radio => {
+  radio.addEventListener('change', function() {
+    const group = this.closest('.rating-buttons');
+    group.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
+    this.nextElementSibling.classList.add('selected');
+  });
+  // Pre-highlight already-checked
+  if (radio.checked) {
+    radio.nextElementSibling.classList.add('selected');
+  }
+});
+</script>
+</body>
+</html>

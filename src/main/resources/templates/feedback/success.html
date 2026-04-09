@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EduPulse · Feedback Submitted</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+</head>
+<body class="success-body">
+
+<nav class="navbar navbar-light">
+  <div class="nav-logo">
+    <div class="logo-icon">Ep</div>
+    <div class="logo-text">
+      <span class="logo-brand">EduPulse</span>
+      <span class="logo-sub">FACULTY FEEDBACK</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <span class="theme-toggle" id="themeToggle">🌙</span>
+    <a th:href="@{/login}" class="btn-staff-login-outline">👤 Staff Login</a>
+  </div>
+</nav>
+
+<div class="success-container">
+  <div class="success-emojis">🎉 🎊 🎓</div>
+
+  <div class="success-check">✓</div>
+
+  <h1 class="success-title">Feedback Submitted!</h1>
+  <p class="success-msg">
+    Thank you for taking the time to share your feedback.<br/>
+    Your responses directly influence teaching quality and curriculum<br/>
+    improvements across the department.
+  </p>
+
+  <!-- Countdown circle -->
+  <div class="countdown-wrapper">
+    <svg class="countdown-ring" viewBox="0 0 60 60">
+      <circle cx="30" cy="30" r="26" fill="none" stroke="#e0e0e0" stroke-width="4"/>
+      <circle id="countdownArc" cx="30" cy="30" r="26" fill="none"
+              stroke="#c0392b" stroke-width="4"
+              stroke-dasharray="163.4" stroke-dashoffset="0"
+              stroke-linecap="round" transform="rotate(-90 30 30)"/>
+    </svg>
+    <span id="countdownNum" class="countdown-num">5</span>
+  </div>
+
+  <p class="redirect-text">Redirecting to home...</p>
+
+  <a th:href="@{/}" class="btn-go-home">🏠 Go to Home Now</a>
+</div>
+
+<script>
+  let count = 5;
+  const total = 5;
+  const arc = document.getElementById('countdownArc');
+  const numEl = document.getElementById('countdownNum');
+  const circumference = 2 * Math.PI * 26; // 163.4
+
+  function tick() {
+    count--;
+    numEl.textContent = count;
+    const offset = circumference * (1 - count / total);
+    arc.style.strokeDashoffset = offset;
+    if (count <= 0) {
+      window.location.href = '/';
+    } else {
+      setTimeout(tick, 1000);
+    }
+  }
+  setTimeout(tick, 1000);
+</script>
+</body>
+</html>

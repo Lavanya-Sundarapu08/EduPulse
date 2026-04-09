@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EduPulse · Principal Dashboard</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <link rel="stylesheet" th:href="@{/css/dashboard.css}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body class="dashboard-body">
+
+<!-- ── Sidebar ─────────────────────────────────────────────────── -->
+<aside class="sidebar sidebar-principal">
+  <div class="sidebar-logo">
+    <div class="logo-icon">Ep</div>
+    <div>
+      <div class="logo-brand">EduPulse</div>
+      <div class="logo-sub">PRINCIPAL PORTAL</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="#overview"   class="sidebar-link active">🏫 Overview</a>
+    <a href="#comparison" class="sidebar-link">👥 Faculty Comparison</a>
+    <a href="#radar"      class="sidebar-link">📡 Radar Overlay</a>
+    <a href="#ratings"    class="sidebar-link">⭐ Ratings</a>
+    <a href="#branches"   class="sidebar-link">🏛 Branch Stats</a>
+  </nav>
+  <div class="sidebar-footer">
+  <form th:action="@{/logout}" method="post">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    <button type="submit" class="btn-logout">⏻ Logout</button>
+  </form>
+</div>
+</aside>
+
+<!-- ── Main content ────────────────────────────────────────────── -->
+<main class="dash-main">
+
+  <div class="dash-topbar">
+    <div>
+      <h1 class="dash-title">Principal Dashboard</h1>
+      <p class="dash-sub">All Faculty Performance Overview · Academic Year 2024-25</p>
+    </div>
+    <div class="topbar-user">
+      <span class="user-avatar" style="background:#2c3e50">P</span>
+      <span>Principal</span>
+    </div>
+  </div>
+
+  <!-- ── KPI cards ─────────────────────────────────────────────── -->
+  <section id="overview" class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-icon">📋</div>
+      <div class="kpi-value" th:text="${totalSubmissions}">0</div>
+      <div class="kpi-label">Total Submissions</div>
+    </div>
+    <div class="kpi-card kpi-highlight">
+      <div class="kpi-icon">👨‍🏫</div>
+      <div class="kpi-value" th:text="${facultyCount}">0</div>
+      <div class="kpi-label">Faculty Evaluated</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🎓</div>
+      <div class="kpi-value">2024-25</div>
+      <div class="kpi-label">Academic Year</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">📊</div>
+      <div class="kpi-value">Live</div>
+      <div class="kpi-label">Dashboard Status</div>
+    </div>
+  </section>
+
+  <!-- ── Grouped bar: all faculty all criteria ────────────────── -->
+  <section id="comparison" class="chart-card full-width">
+    <div class="chart-card-header">
+      <h3>Faculty Comparison — All Criteria</h3>
+      <span class="chart-badge">Grouped bar</span>
+    </div>
+    <div class="chart-container chart-tall">
+      <canvas id="groupedBar"></canvas>
+    </div>
+  </section>
+
+  <!-- ── Radar overlay + Doughnut ─────────────────────────────── -->
+  <section class="chart-grid-2">
+    <div id="radar" class="chart-card">
+      <div class="chart-card-header">
+        <h3>Faculty Radar Overlay</h3>
+        <span class="chart-badge">Multi-dataset</span>
+      </div>
+      <div class="chart-container">
+        <canvas id="radarAll"></canvas>
+      </div>
+    </div>
+    <div id="ratings" class="chart-card">
+      <div class="chart-card-header">
+        <h3>Overall Rating Distribution</h3>
+        <span class="chart-badge">All departments</span>
+      </div>
+      <div class="chart-container">
+        <canvas id="ratingDonut"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Horizontal bar: submissions + Branch pie ──────────────── -->
+  <section class="chart-grid-2">
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <h3>Submissions per Faculty</h3>
+        <span class="chart-badge">Horizontal bar</span>
+      </div>
+      <div class="chart-container">
+        <canvas id="hBar"></canvas>
+      </div>
+    </div>
+    <div id="branches" class="chart-card">
+      <div class="chart-card-header">
+        <h3>Branch-wise Submissions</h3>
+        <span class="chart-badge">Pie chart</span>
+      </div>
+      <div class="chart-container">
+        <canvas id="branchPie"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Faculty Score Table ───────────────────────────────────── -->
+  <section class="chart-card full-width">
+    <div class="chart-card-header">
+      <h3>Faculty Score Summary Table</h3>
+      <span class="chart-badge">Sortable</span>
+    </div>
+    <div class="table-wrapper">
+      <table class="score-table" id="scoreTable">
+        <thead>
+          <tr>
+            <th onclick="sortTable(0)">Faculty ↕</th>
+            <th onclick="sortTable(1)">Teaching ↕</th>
+            <th onclick="sortTable(2)">Subject ↕</th>
+            <th onclick="sortTable(3)">Comm. ↕</th>
+            <th onclick="sortTable(4)">Punct. ↕</th>
+            <th onclick="sortTable(5)">Support ↕</th>
+            <th onclick="sortTable(6)">Submissions ↕</th>
+          </tr>
+        </thead>
+        <tbody id="scoreTableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<!-- ── Scripts ───────────────────────────────────────────────────── -->
+<script th:inline="javascript">
+  try {
+    const namesRaw    = /*[[${facultyNamesJson}]]*/ "[]";
+    const teachingRaw = /*[[${teachingJson}]]*/ "[]";
+    const subjectRaw  = /*[[${subjectJson}]]*/ "[]";
+    const commRaw     = /*[[${commJson}]]*/ "[]";
+    const punctRaw    = /*[[${punctJson}]]*/ "[]";
+    const supportRaw  = /*[[${supportJson}]]*/ "[]";
+    const countsRaw   = /*[[${countsJson}]]*/ "[]";
+    const ratingRaw   = /*[[${ratingDistJson}]]*/ "{}";
+    const branchRaw   = /*[[${branchCountsJson}]]*/ "{}";
+
+    const names    = typeof namesRaw === 'string' ? JSON.parse(namesRaw) : namesRaw;
+    const teaching = typeof teachingRaw === 'string' ? JSON.parse(teachingRaw) : teachingRaw;
+    const subject  = typeof subjectRaw === 'string' ? JSON.parse(subjectRaw) : subjectRaw;
+    const comm     = typeof commRaw === 'string' ? JSON.parse(commRaw) : commRaw;
+    const punct    = typeof punctRaw === 'string' ? JSON.parse(punctRaw) : punctRaw;
+    const support  = typeof supportRaw === 'string' ? JSON.parse(supportRaw) : supportRaw;
+    const counts   = typeof countsRaw === 'string' ? JSON.parse(countsRaw) : countsRaw;
+    const ratingDist   = typeof ratingRaw === 'string' ? JSON.parse(ratingRaw) : ratingRaw;
+    const branchCounts = typeof branchRaw === 'string' ? JSON.parse(branchRaw) : branchRaw;
+    
+    console.log('✅ Data loaded successfully');
+    console.log('names:', names);
+    console.log('teaching:', teaching);
+    console.log('ratingDist:', ratingDist);
+    console.log('branchCounts:', branchCounts);
+
+    const PALETTE = ['#c0392b','#2980b9','#27ae60','#f39c12','#8e44ad','#16a085','#d35400'];
+
+    if (typeof Chart === 'undefined') {
+      console.error('❌ Chart.js not loaded!');
+      throw new Error('Chart.js library failed to load');
+    }
+
+    // ── Grouped Bar ───────────────────────────────────────────────
+    console.log('Creating Grouped Bar Chart...');
+    new Chart(document.getElementById('groupedBar'), {
+      type: 'bar',
+      data: {
+        labels: names,
+        datasets: [
+          { label:'Teaching',      data: teaching, backgroundColor:'#c0392b', borderRadius:5 },
+          { label:'Subject',       data: subject,  backgroundColor:'#2980b9', borderRadius:5 },
+          { label:'Communication', data: comm,     backgroundColor:'#27ae60', borderRadius:5 },
+          { label:'Punctuality',   data: punct,    backgroundColor:'#f39c12', borderRadius:5 },
+          { label:'Support',       data: support,  backgroundColor:'#8e44ad', borderRadius:5 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        animation: { duration: 800 },
+        scales: {
+          y: { min: 0, max: 4, ticks: { stepSize: 1 } },
+          x: { ticks: { font: { size: 12 } } }
+        },
+        plugins: { legend: { position: 'bottom', labels: { padding: 14, font: { size: 12 } } } }
+      }
+    });
+    console.log('✅ Grouped Bar Chart created');
+
+    // ── Radar Overlay ─────────────────────────────────────────────
+    console.log('Creating Radar Chart...');
+    const radarDatasets = names.map((n, i) => ({
+      label: n,
+      data: [teaching[i], subject[i], comm[i], punct[i], support[i]],
+      borderColor: PALETTE[i % PALETTE.length],
+      backgroundColor: PALETTE[i % PALETTE.length] + '22',
+      pointRadius: 4,
+      borderWidth: 2
+    }));
+    new Chart(document.getElementById('radarAll'), {
+      type: 'radar',
+      data: {
+        labels: ['Teaching','Subject','Communication','Punctuality','Support'],
+        datasets: radarDatasets
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        animation: { duration: 800 },
+        scales: {
+          r: {
+            min: 0, max: 4,
+            ticks: { stepSize: 1, font: { size: 10 } },
+            pointLabels: { font: { size: 11 } }
+          }
+        },
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 10 } } }
+      }
+    });
+    console.log('✅ Radar Chart created');
+
+    // ── Rating Doughnut ───────────────────────────────────────────
+    console.log('Creating Rating Doughnut Chart...');
+    new Chart(document.getElementById('ratingDonut'), {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(ratingDist),
+        datasets: [{
+          data: Object.values(ratingDist),
+          backgroundColor: ['#27ae60','#2980b9','#f39c12','#e74c3c'],
+          hoverOffset: 8,
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        cutout: '65%',
+        animation: { animateRotate: true, duration: 900 },
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 14 } } }
+      }
+    });
+    console.log('✅ Rating Doughnut Chart created');
+
+    // ── Horizontal Bar ────────────────────────────────────────────
+    console.log('Creating Horizontal Bar Chart...');
+    new Chart(document.getElementById('hBar'), {
+      type: 'bar',
+      data: {
+        labels: names,
+        datasets: [{
+          label: 'Submissions',
+          data: counts,
+          backgroundColor: PALETTE,
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        indexAxis: 'y',
+        animation: { duration: 700 },
+        plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
+      }
+    });
+    console.log('✅ Horizontal Bar Chart created');
+
+    // ── Branch Pie ────────────────────────────────────────────────
+    console.log('Creating Branch Pie Chart...');
+    new Chart(document.getElementById('branchPie'), {
+      type: 'pie',
+      data: {
+        labels: Object.keys(branchCounts),
+        datasets: [{
+          data: Object.values(branchCounts),
+          backgroundColor: PALETTE,
+          hoverOffset: 8,
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        animation: { animateRotate: true, duration: 900 },
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 12 } } }
+      }
+    });
+    console.log('✅ Branch Pie Chart created');
+
+    // ── Score summary table ───────────────────────────────────────
+    console.log('Creating Score Summary Table...');
+    function scoreColor(v) {
+      if (v >= 3.5) return '#d4edda';
+      if (v >= 2.5) return '#fff3cd';
+      return '#fde8e8';
+    }
+    const tbody = document.getElementById('scoreTableBody');
+    names.forEach((n, i) => {
+      const avg = ((teaching[i]+subject[i]+comm[i]+punct[i]+support[i]) / 5).toFixed(2);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${n}</strong></td>
+        <td style="background:${scoreColor(teaching[i])}">${parseFloat(teaching[i]).toFixed(2)}</td>
+        <td style="background:${scoreColor(subject[i])}">${parseFloat(subject[i]).toFixed(2)}</td>
+        <td style="background:${scoreColor(comm[i])}">${parseFloat(comm[i]).toFixed(2)}</td>
+        <td style="background:${scoreColor(punct[i])}">${parseFloat(punct[i]).toFixed(2)}</td>
+        <td style="background:${scoreColor(support[i])}">${parseFloat(support[i]).toFixed(2)}</td>
+        <td>${counts[i]}</td>`;
+      tbody.appendChild(tr);
+    });
+    console.log('✅ Score Summary Table created');
+
+    // ── Sortable table ────────────────────────────────────────────
+    let sortDir = {};
+    window.sortTable = function(col) {
+      const tbody = document.getElementById('scoreTableBody');
+      const rows  = Array.from(tbody.querySelectorAll('tr'));
+      sortDir[col] = !sortDir[col];
+      rows.sort((a, b) => {
+        const aVal = a.cells[col].textContent.trim();
+        const bVal = b.cells[col].textContent.trim();
+        const aNum = parseFloat(aVal), bNum = parseFloat(bVal);
+        if (!isNaN(aNum) && !isNaN(bNum)) return sortDir[col] ? aNum - bNum : bNum - aNum;
+        return sortDir[col] ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      });
+      rows.forEach(r => tbody.appendChild(r));
+    };
+
+    // ── Sidebar active link ───────────────────────────────────────
+    document.querySelectorAll('.sidebar-link').forEach(link => {
+      link.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+      });
+    });
+
+    console.log('✅✅✅ ALL CHARTS CREATED SUCCESSFULLY! ✅✅✅');
+
+  } catch (error) {
+    console.error('❌ ERROR:', error);
+    console.error('Stack:', error.stack);
+    alert('Dashboard Error: ' + error.message);
+  }
+</script>
+</body>
+</html>

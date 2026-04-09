@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EduPulse · Staff Login</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+</head>
+<body class="login-body">
+
+<div class="login-page">
+
+  <!-- Left panel - branding -->
+  <div class="login-left">
+    <div class="login-brand">
+      <div class="logo-icon lg">Ep</div>
+      <div>
+        <div class="logo-brand-lg">EduPulse</div>
+        <div class="logo-sub-lg">FACULTY FEEDBACK SYSTEM</div>
+      </div>
+    </div>
+    <h2 class="login-tagline">Insights that improve<br/><em>teaching quality.</em></h2>
+    <p class="login-desc">Access your dashboard to view student feedback, analytics, and performance reports for your department.</p>
+    <div class="login-features">
+      <div class="login-feature">📊 Advanced analytics &amp; charts</div>
+      <div class="login-feature">🔒 Secure role-based access</div>
+      <div class="login-feature">📋 Per-faculty &amp; dept-wide reports</div>
+    </div>
+  </div>
+
+  <!-- Right panel - login form -->
+  <div class="login-right">
+    <div class="login-card">
+      <h2 class="login-form-title">Welcome back</h2>
+      <p class="login-form-sub">Sign in to your dashboard</p>
+
+      <div class="alert-error" th:if="${param.error}">
+        ⚠ Invalid username or password. Please try again.
+      </div>
+      <div class="alert-success" th:if="${param.logout}">
+        ✓ You have been logged out successfully.
+      </div>
+
+      <form th:action="@{/login}" method="post">
+
+        <div class="login-field">
+          <label class="login-label">USERNAME</label>
+          <input type="text" name="username" class="login-input"
+                 placeholder="e.g. staff.kumar" autocomplete="username" required/>
+        </div>
+
+        <div class="login-field">
+          <label class="login-label">PASSWORD</label>
+          <input type="password" name="password" class="login-input"
+                 placeholder="••••••••" autocomplete="current-password" required/>
+        </div>
+
+        <button type="submit" class="btn-login">Sign In →</button>
+      </form>
+
+      <div class="login-hint">
+        <p><strong>Staff:</strong> username: <code>staff.kumar</code> / password: <code>password123</code></p>
+        <p><strong>Principal:</strong> username: <code>principal</code> / password: <code>admin123</code></p>
+      </div>
+
+      <div class="login-back">
+        <a th:href="@{/}">← Back to Student Feedback</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

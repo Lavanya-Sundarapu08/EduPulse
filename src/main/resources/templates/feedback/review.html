@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EduPulse · Review Feedback</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+</head>
+<body class="feedback-body">
+
+<nav class="navbar navbar-light">
+  <div class="nav-logo">
+    <div class="logo-icon">Ep</div>
+    <div class="logo-text">
+      <span class="logo-brand">EduPulse</span>
+      <span class="logo-sub">FACULTY FEEDBACK</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <span class="theme-toggle" id="themeToggle">🌙</span>
+    <a th:href="@{/login}" class="btn-staff-login-outline">👤 Staff Login</a>
+  </div>
+</nav>
+
+<div class="feedback-wrapper">
+  <div class="breadcrumb-bar">
+    <a th:href="@{/feedback/faculty/{i}(i=${facultyList.size() - 1})}" class="back-link">← Back</a>
+    <span class="breadcrumb-sep">|</span>
+    <span class="breadcrumb-path">Feedback / General Comments</span>
+  </div>
+
+  <!-- Step indicator - all done except review -->
+  <div class="step-indicator">
+    <th:block th:each="fc, iter : ${facultyList}">
+      <div class="step step-done">
+        <div class="step-circle">✓</div>
+        <span class="step-label" th:text="${fc.facultyName}"></span>
+      </div>
+      <div class="step-line" th:if="${!iter.last}"></div>
+    </th:block>
+    <div class="step-line"></div>
+    <div class="step step-active step-review">
+      <div class="step-circle step-circle-review">⚐</div>
+      <span class="step-label">Review</span>
+    </div>
+  </div>
+
+  <form th:action="@{/feedback/submit}" method="post">
+
+    <!-- Overall Department Feedback -->
+    <div class="review-card">
+      <div class="section-label-bar">OVERALL DEPARTMENT FEEDBACK</div>
+      <p class="section-hint">Share thoughts on the department as a whole — infrastructure, labs, curriculum, or administration.</p>
+      <textarea name="overallDeptFeedback" class="comment-box" rows="5"
+                placeholder="Your overall thoughts about the department..."></textarea>
+    </div>
+
+    <!-- Overall Rating -->
+    <div class="review-card" style="margin-top:16px;">
+      <div class="section-label-bar">OVERALL DEPARTMENT RATING</div>
+      <div class="overall-rating-group">
+        <label class="overall-rating-opt">
+          <input type="radio" name="overallRating" value="Excellent"/>
+          <span class="overall-btn excellent">● Excellent</span>
+        </label>
+        <label class="overall-rating-opt">
+          <input type="radio" name="overallRating" value="Good" checked/>
+          <span class="overall-btn good">● Good</span>
+        </label>
+        <label class="overall-rating-opt">
+          <input type="radio" name="overallRating" value="Average"/>
+          <span class="overall-btn average">● Average</span>
+        </label>
+        <label class="overall-rating-opt">
+          <input type="radio" name="overallRating" value="Needs Improvement"/>
+          <span class="overall-btn needs-improvement">● Needs Improvement</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-nav">
+      <a th:href="@{/feedback/faculty/{i}(i=${facultyList.size() - 1})}" class="btn-prev">← Previous Teacher</a>
+      <button type="submit" class="btn-submit">✓ Submit All Feedback</button>
+    </div>
+  </form>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+<script>
+document.querySelectorAll('input[name="overallRating"]').forEach(r => {
+  r.addEventListener('change', function() {
+    document.querySelectorAll('.overall-btn').forEach(b => b.classList.remove('selected'));
+    this.nextElementSibling.classList.add('selected');
+  });
+  if (r.checked) r.nextElementSibling.classList.add('selected');
+});
+</script>
+</body>
+</html>
