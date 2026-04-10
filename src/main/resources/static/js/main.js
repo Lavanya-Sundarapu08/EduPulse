@@ -1,9 +1,20 @@
-// ── Theme toggle ─────────────────────────────────────────────────
+// ── Theme toggle with localStorage ───────────────────────────────
 const toggle = document.getElementById('themeToggle');
+
+// Apply saved theme on page load
+if (localStorage.getItem('theme') === 'dark') {
+  document.body.classList.add('dark');
+  if (toggle) toggle.textContent = '☀️';
+} else {
+  if (toggle) toggle.textContent = '🌙';
+}
+
 if (toggle) {
   toggle.addEventListener('click', () => {
     document.body.classList.toggle('dark');
-    toggle.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+    const isDark = document.body.classList.contains('dark');
+    toggle.textContent = isDark ? '☀️' : '🌙';
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
   });
 }
 

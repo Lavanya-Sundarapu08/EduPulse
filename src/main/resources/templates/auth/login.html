@@ -10,6 +10,7 @@
 <body class="login-body">
 
 <div class="login-page">
+  <span class="login-theme-toggle" id="themeToggle">🌙</span>
 
   <!-- Left panel - branding -->
   <div class="login-left">
@@ -47,7 +48,7 @@
         <div class="login-field">
           <label class="login-label">USERNAME</label>
           <input type="text" name="username" class="login-input"
-                 placeholder="e.g. staff.kumar" autocomplete="username" required/>
+                 placeholder="Enter username" autocomplete="username" required/>
         </div>
 
         <div class="login-field">
@@ -59,11 +60,6 @@
         <button type="submit" class="btn-login">Sign In →</button>
       </form>
 
-      <div class="login-hint">
-        <p><strong>Staff:</strong> username: <code>staff.kumar</code> / password: <code>password123</code></p>
-        <p><strong>Principal:</strong> username: <code>principal</code> / password: <code>admin123</code></p>
-      </div>
-
       <div class="login-back">
         <a th:href="@{/}">← Back to Student Feedback</a>
       </div>
@@ -71,5 +67,6 @@
   </div>
 
 </div>
+<script th:src="@{/js/main.js}"></script>
 </body>
 </html>

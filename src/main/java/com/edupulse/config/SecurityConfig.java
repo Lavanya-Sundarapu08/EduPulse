@@ -40,8 +40,10 @@ public class SecurityConfig {
                     "/", "/feedback/**", "/api/faculty/**",
                     "/css/**", "/js/**", "/images/**", "/favicon.ico"
                 ).permitAll()
-                // Login page
+                // Login page only
                 .requestMatchers("/login").permitAll()
+                // Password change - only for authenticated users
+                .requestMatchers("/password/change").authenticated()
                 // Staff only
                 .requestMatchers("/staff/**").hasRole("STAFF")
                 // Principal only
@@ -67,11 +69,9 @@ public class SecurityConfig {
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
             )
-            // Allow h2-console if needed for testing (disable in prod)
             .csrf(csrf -> csrf
                 .ignoringRequestMatchers("/h2-console/**")
             );
-
         return http.build();
     }
 }

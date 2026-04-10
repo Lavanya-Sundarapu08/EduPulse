@@ -28,12 +28,13 @@
     <a href="#trend"     class="sidebar-link">📉 Trend</a>
     <a href="#comments"  class="sidebar-link">💬 Comments</a>
   </nav>
- <div class="sidebar-footer">
-  <form th:action="@{/logout}" method="post">
-    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-    <button type="submit" class="btn-logout">⏻ Logout</button>
-  </form>
-</div>
+  <div class="sidebar-footer">
+    <button class="btn-password" onclick="openPasswordModal()">🔑 Change Password</button>
+    <form th:action="@{/logout}" method="post" style="margin-top: 10px;">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <button type="submit" class="btn-logout">⏻ Logout</button>
+    </form>
+  </div>
 </aside>
 
 <!-- ── Main content ────────────────────────────────────────────── -->
@@ -162,6 +163,42 @@
   </section>
 
 </main>
+
+<!-- Password Reset Modal -->
+<div id="passwordModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+  <div style="background: white; border-radius: 16px; padding: 40px; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+    <h2 style="color: #1a1a1a; font-size: 24px; font-weight: 800; margin-bottom: 8px;">Change Password</h2>
+    <p style="color: #666; font-size: 14px; margin-bottom: 25px; font-weight: 500;">Update your password securely</p>
+
+    <div id="passwordError" style="display: none; background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(238, 90, 111, 0.1) 100%); color: #ff6b6b; padding: 12px 14px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; font-weight: 600; border-left: 4px solid #ff6b6b;"></div>
+    <div id="passwordSuccess" style="display: none; background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(56, 142, 60, 0.1) 100%); color: #4caf50; padding: 12px 14px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; font-weight: 600; border-left: 4px solid #4caf50;"></div>
+
+    <form id="passwordForm" method="post" th:action="@{/password/change}">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; color: #1a1a1a; font-weight: 600; font-size: 12px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Current Password</label>
+        <input type="password" id="currentPassword" name="currentPassword" placeholder="Enter current password" required style="width: 100%; padding: 12px 14px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif; transition: all 0.3s ease;">
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; color: #1a1a1a; font-weight: 600; font-size: 12px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">New Password</label>
+        <input type="password" id="newPassword" name="newPassword" placeholder="Min 6 characters" required onkeyup="checkPasswordStrength()" style="width: 100%; padding: 12px 14px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif; transition: all 0.3s ease;">
+        <div id="strengthText" style="font-size: 12px; margin-top: 5px; font-weight: 600; color: #ff6b6b;">Weak</div>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; color: #1a1a1a; font-weight: 600; font-size: 12px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Confirm New Password</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter new password" required style="width: 100%; padding: 12px 14px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif; transition: all 0.3s ease;">
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button type="submit" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Change Password</button>
+        <button type="button" onclick="closePasswordModal()" style="flex: 1; padding: 12px; background: rgba(0,0,0,0.05); color: #1a1a1a; border: 2px solid #e0e0e0; border-radius: 10px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- ── Chart.js scripts ──────────────────────────────────────────── -->
 <script th:inline="javascript">
@@ -325,6 +362,125 @@ console.log("SECTION:", sectionBreak);
   });
 
 /*]]>*/
+</script>
+
+<style>
+  .btn-password {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 11px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+    border-radius: 10px;
+    color: #667eea;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    cursor: button;
+  }
+  .btn-password:hover { 
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+    color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+  }
+  .password-strength {
+    font-size: 12px;
+    margin-top: 5px;
+    font-weight: 600;
+  }
+  .password-strength.weak { color: #ff6b6b; }
+  .password-strength.medium { color: #f39c12; }
+  .password-strength.strong { color: #4caf50; }
+</style>
+
+<script>
+  function openPasswordModal() {
+    document.getElementById('passwordModal').style.display = 'flex';
+    document.getElementById('passwordError').style.display = 'none';
+    document.getElementById('passwordSuccess').style.display = 'none';
+  }
+
+  function closePasswordModal() {
+    document.getElementById('passwordModal').style.display = 'none';
+    document.getElementById('passwordForm').reset();
+    document.getElementById('strengthText').textContent = 'Weak';
+    document.getElementById('strengthText').className = 'password-strength weak';
+  }
+
+  function checkPasswordStrength() {
+    const password = document.getElementById('newPassword').value;
+    const strengthText = document.getElementById('strengthText');
+    
+    let strength = 'weak';
+    
+    if (password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password)) {
+      strength = 'strong';
+    } else if (password.length >= 6 && /[0-9]/.test(password)) {
+      strength = 'medium';
+    }
+    
+    strengthText.textContent = strength.charAt(0).toUpperCase() + strength.slice(1);
+    strengthText.className = 'password-strength ' + strength;
+  }
+
+  document.getElementById('passwordForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const errorDiv = document.getElementById('passwordError');
+    const successDiv = document.getElementById('passwordSuccess');
+
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+
+    if (newPassword !== confirmPassword) {
+      errorDiv.textContent = '❌ New passwords do not match!';
+      errorDiv.style.display = 'block';
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      errorDiv.textContent = '❌ New password must be at least 6 characters!';
+      errorDiv.style.display = 'block';
+      return;
+    }
+
+    if (currentPassword === newPassword) {
+      errorDiv.textContent = '❌ New password cannot be same as current password!';
+      errorDiv.style.display = 'block';
+      return;
+    }
+
+    fetch(this.action, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
+      },
+      body: new URLSearchParams(new FormData(this))
+    })
+    .then(response => response.text())
+    .then(html => {
+      if (html.includes('success')) {
+        successDiv.textContent = '✅ Password changed successfully!';
+        successDiv.style.display = 'block';
+        document.getElementById('passwordForm').reset();
+        setTimeout(() => closePasswordModal(), 2000);
+      } else if (html.includes('error')) {
+        const errorMatch = html.match(/data-error="([^"]+)"/);
+        errorDiv.textContent = '❌ ' + (errorMatch ? errorMatch[1] : 'Failed to change password!');
+        errorDiv.style.display = 'block';
+      }
+    })
+    .catch(error => {
+      errorDiv.textContent = '❌ An error occurred!';
+      errorDiv.style.display = 'block';
+    });
+  });
 </script>
 </body>
 </html>
